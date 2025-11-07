@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .dashboard-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        .dashboard-header h2 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .dashboard-header p {
+            margin: 5px 0 0 0;
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        .system-status {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .status-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .status-badge.operational {
+            background: rgba(34, 197, 94, 0.3);
+        }
+        .status-badge i {
+            font-size: 14px;
+        }
+
+        .quick-actions {
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2);
+        }
+        .quick-actions-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+            opacity: 0.95;
+        }
+        .quick-actions-title i {
+            font-size: 16px;
+        }
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        .action-btn {
+            background: rgba(255, 255, 255, 0.95);
+            border: none;
+            border-radius: 8px;
+            padding: 10px 18px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            color: #667eea;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            position: relative;
+            overflow: hidden;
+            white-space: nowrap;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .action-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.5s ease;
+        }
+        .action-btn:hover::before {
+            left: 100%;
+        }
+        .action-btn:hover {
+            background: white;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        .action-btn i {
+            font-size: 16px;
+            color: #667eea;
+            transition: transform 0.3s ease;
+            z-index: 1;
+        }
+        .action-btn:hover i {
+            transform: scale(1.15);
+        }
+        .action-btn span {
+            z-index: 1;
+            font-weight: 600;
+        }
+        .action-btn.danger {
+            color: #ef4444;
+        }
+        .action-btn.danger i {
+            color: #ef4444;
+        }
+        .action-btn.danger:hover {
+            background: rgba(239, 68, 68, 0.05);
+            color: #ef4444;
+        }
+        
+        @media (max-width: 768px) {
+            .action-buttons {
+                gap: 8px;
+            }
+            .action-btn {
+                padding: 8px 14px;
+                font-size: 12px;
+                gap: 6px;
+            }
+            .action-btn i {
+                font-size: 14px;
+            }
+        }
+
+        .metrics-section {
+            margin-bottom: 30px;
+        }
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-title i {
+            color: #667eea;
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+        .metric-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-color: #667eea;
+        }
+        .metric-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        .metric-card-title {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #999;
+            letter-spacing: 0.5px;
+        }
+        .metric-card-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        .metric-card-status {
+            font-size: 12px;
+            color: #999;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .metric-card-status.good {
+            color: #22c55e;
+        }
+        .metric-card-status.warning {
+            color: #f59e0b;
+        }
+        .metric-card-status.error {
+            color: #ef4444;
+        }
+        .metric-card-status i {
+            font-size: 12px;
+        }
+        .metric-card-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 3px;
+            height: 40px;
+            margin-bottom: 10px;
+        }
+        .metric-bar {
+            flex: 1;
+            background: rgba(102, 126, 234, 0.3);
+            border-radius: 2px;
+            min-height: 4px;
+        }
+
+        .infrastructure-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .infra-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+        .infra-card:hover {
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            transform: translateY(-4px);
+        }
+        .infra-card-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+        }
+        .infra-card-icon i {
+            font-size: 24px;
+            color: #667eea;
+        }
+        .infra-card-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+        }
+        .infra-card-stat {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+        .infra-card-stat-label {
+            color: #999;
+        }
+        .infra-card-stat-value {
+            color: #667eea;
+            font-weight: 600;
+        }
+        .infra-card-action {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e0e0e0;
+        }
+        .infra-card-action a {
+            font-size: 12px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .infra-card-action a:hover {
+            text-decoration: underline;
+        }
+
+        .recent-activities {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+        }
+        .activity-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        .activity-icon {
+            width: 32px;
+            height: 32px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .activity-icon i {
+            font-size: 14px;
+            color: #667eea;
+        }
+        .activity-content {
+            flex: 1;
+        }
+        .activity-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+        }
+        .activity-time {
+            font-size: 12px;
+            color: #999;
+            margin-top: 2px;
+        }
+
+        /* Sidebar Styles */
+        .app-container {
+            display: flex;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        .app-container.with-sidebar {
+            flex-direction: row;
+        }
+
+        .app-header {
+            order: -1;
+            z-index: 1001;
+        }
+
+        .app-wrapper {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #2c2c4c 0%, #1a1a2e 100%);
+            color: white;
+            padding: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+            box-shadow: 4px 0 12px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+        }
+
+        .sidebar.collapsed {
+            width: 0;
+            padding: 0;
+            box-shadow: none;
+        }
+
+        .sidebar-header {
+            padding: 24px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+
+        .sidebar-header h2 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .sidebar-header p {
+            margin: 4px 0 0 0;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 16px 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-section {
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar-section-title {
+            padding: 12px 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.4);
+            letter-spacing: 1px;
+            margin-top: 8px;
+        }
+
+        .sidebar-item {
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            font-weight: 500;
+            border-left: 3px solid transparent;
+            cursor: pointer;
+        }
+
+        .sidebar-link:hover {
+            background: rgba(102, 126, 234, 0.2);
+            color: white;
+            border-left-color: #667eea;
+            padding-left: 18px;
+        }
+
+        .sidebar-link.active {
+            background: rgba(102, 126, 234, 0.3);
+            color: #667eea;
+            border-left-color: #667eea;
+            font-weight: 600;
+        }
+
+        .sidebar-link i {
+            width: 20px;
+            text-align: center;
+            font-size: 16px;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-link:hover i {
+            transform: translateX(3px);
+        }
+
+        .sidebar-footer {
+            padding: 16px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+            text-align: center;
+        }
+
+        .sidebar-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 1002;
+            display: none;
+        }
+
+        .app-content {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: 0;
+                top: 60px;
+                height: calc(100vh - 60px);
+                z-index: 999;
+            }
+
+            .sidebar.collapsed {
+                transform: translateX(-100%);
+            }
+
+            .sidebar-toggle {
+                display: block;
+            }
+
+            .app-wrapper.sidebar-open .sidebar-toggle i {
+                transform: rotate(180deg);
+            }
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <header class="app-header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-chart-line"></i>
+                <h1>LogScope</h1>
+            </div>
+
+            <div class="header-center">
+                <div class="header-clock">
+                    <i class="fas fa-clock"></i>
+                    <span id="headerTime">--:--:--</span>
+                </div>
+                <div class="header-status">
+                    <i></i>
+                    <span>Monitoring Active</span>
+                </div>
+            </div>
+
+            <div class="header-right">
+                <nav class="main-nav">
+                    <a href="/" class="<%= page === 'dashboard' ? 'active' : '' %>">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                    <a href="/config" class="<%= page === 'config' ? 'active' : '' %>">
+                        <i class="fas fa-cog"></i> Configuration
+                    </a>
+                    <a href="/analysis" class="<%= page === 'analysis' ? 'active' : '' %>">
+                        <i class="fas fa-search"></i> Analysis
+                    </a>
+                </nav>
+                <button class="sidebar-toggle" @click="toggleSidebar" title="Toggle sidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="app-wrapper" :class="{ 'sidebar-open': sidebarOpen }">
+        <!-- Sidebar -->
+        <aside class="sidebar" :class="{ collapsed: !sidebarOpen }">
+            <div class="sidebar-header">
+                <h2>LogScope</h2>
+                <p>Syslog Monitor</p>
+            </div>
+
+            <nav class="sidebar-nav">
+                <!-- Dashboard Section -->
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">
+                        <i class="fas fa-home"></i> Main
+                    </div>
+                    <div class="sidebar-item">
+                        <a href="/" class="sidebar-link" :class="{ active: currentPage === 'dashboard' }" @click="currentPage = 'dashboard'">
+                            <i class="fas fa-chart-pie"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Log Management Section -->
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">
+                        <i class="fas fa-layer-group"></i> Log Management
+                    </div>
+                    <div class="sidebar-item">
+                        <a href="/analysis" class="sidebar-link" :class="{ active: currentPage === 'analysis' }" @click="currentPage = 'analysis'">
+                            <i class="fas fa-filter"></i>
+                            <span>Analysis & Filter</span>
+                        </a>
+                    </div>
+                    <div class="sidebar-item">
+                        <button class="sidebar-link" @click="exportLogs" style="width: 100%; text-align: left; background: none;">
+                            <i class="fas fa-download"></i>
+                            <span>Export Logs</span>
+                        </button>
+                    </div>
+                    <div class="sidebar-item">
+                        <button class="sidebar-link" @click="refreshData" style="width: 100%; text-align: left; background: none;">
+                            <i class="fas fa-arrows-rotate"></i>
+                            <span>Refresh Data</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- System Section -->
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">
+                        <i class="fas fa-sliders"></i> System
+                    </div>
+                    <div class="sidebar-item">
+                        <a href="/config" class="sidebar-link" :class="{ active: currentPage === 'config' }" @click="currentPage = 'config'">
+                            <i class="fas fa-gears"></i>
+                            <span>Configuration</span>
+                        </a>
+                    </div>
+                    <div class="sidebar-item">
+                        <button class="sidebar-link" @click="clearLogs" style="width: 100%; text-align: left; background: none; color: rgba(255, 255, 255, 0.7);">
+                            <i class="fas fa-trash" style="color: #ef4444;"></i>
+                            <span>Clear Logs</span>
+                        </button>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <p>v1.0 • File-Based Storage</p>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="app-main app-content">
+            <div class="dashboard" id="dashboardApp">
+                <!-- Dashboard Header -->
+                <div class="dashboard-header">
+                    <h2>
+                        <i class="fas fa-chart-line"></i>
+                        Syslog Monitor
+                    </h2>
+                    <p>Real-time Mikrotik Log Analysis & Monitoring</p>
+                    <div class="system-status">
+                        <div class="status-badge operational">
+                            <i class="fas fa-check-circle"></i>
+                            ALL SYSTEMS OPERATIONAL
+                        </div>
+                        <div class="status-badge">
+                            Updated: <span id="currentTime">--:-- --</span>
+                        </div>
+                    </div>
+                </div>
+
+            <!-- Quick Actions Section -->
+            <div class="quick-actions">
+                <div class="quick-actions-title">
+                    <i class="fas fa-bolt"></i>
+                    <span>Quick Actions</span>
+                </div>
+                <div class="action-buttons">
+                    <a href="/analysis" class="action-btn" title="Search and filter logs">
+                        <i class="fas fa-magnifying-glass"></i>
+                        <span>Search</span>
+                    </a>
+                    <button class="action-btn" @click="refreshData" title="Refresh all data">
+                        <i class="fas fa-arrows-rotate"></i>
+                        <span>Refresh</span>
+                    </button>
+                    <a href="/analysis?level=error" class="action-btn" title="View all errors">
+                        <i class="fas fa-exclamation"></i>
+                        <span>Errors</span>
+                    </a>
+                    <button class="action-btn" @click="exportLogs" title="Export logs to CSV">
+                        <i class="fas fa-download"></i>
+                        <span>Export</span>
+                    </button>
+                    <a href="/config" class="action-btn" title="Setup and configuration">
+                        <i class="fas fa-gear"></i>
+                        <span>Setup</span>
+                    </a>
+                    <button class="action-btn danger" @click="clearLogs" title="Clear all logs">
+                        <i class="fas fa-trash"></i>
+                        <span>Clear</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- System Metrics Section -->
+            <div class="metrics-section">
+                <div class="section-title">
+                    <i class="fas fa-heartbeat"></i> Log Activity Metrics
+                </div>
+                <el-row :gutter="20">
+                    <el-col :xs="24" :sm="12" :md="6">
+                        <div class="metric-card">
+                            <div class="metric-card-header">
+                                <div class="metric-card-title">Total Logs</div>
+                                <i class="fas fa-list" style="color: #667eea; font-size: 18px;"></i>
+                            </div>
+                            <div class="metric-card-value">{{ formatNumber(stats.total) }}</div>
+                            <div class="metric-card-status good">
+                                <i class="fas fa-check-circle"></i>
+                                Active monitoring
+                            </div>
+                        </div>
+                    </el-col>
+                    <el-col :xs="24" :sm="12" :md="6">
+                        <div class="metric-card">
+                            <div class="metric-card-header">
+                                <div class="metric-card-title">Info Logs</div>
+                                <i class="fas fa-info-circle" style="color: #409EFF; font-size: 18px;"></i>
+                            </div>
+                            <div class="metric-card-value" style="color: #409EFF;">{{ formatNumber(stats.byLevel.info) }}</div>
+                            <div class="metric-card-status">
+                                <i class="fas fa-arrow-up"></i>
+                                {{ calculatePercentage(stats.byLevel.info, stats.total) }}%
+                            </div>
+                        </div>
+                    </el-col>
+                    <el-col :xs="24" :sm="12" :md="6">
+                        <div class="metric-card">
+                            <div class="metric-card-header">
+                                <div class="metric-card-title">Warnings</div>
+                                <i class="fas fa-exclamation-circle" style="color: #E6A23C; font-size: 18px;"></i>
+                            </div>
+                            <div class="metric-card-value" style="color: #E6A23C;">{{ formatNumber(stats.byLevel.warning) }}</div>
+                            <div class="metric-card-status warning">
+                                <i class="fas fa-flag"></i>
+                                {{ calculatePercentage(stats.byLevel.warning, stats.total) }}%
+                            </div>
+                        </div>
+                    </el-col>
+                    <el-col :xs="24" :sm="12" :md="6">
+                        <div class="metric-card">
+                            <div class="metric-card-header">
+                                <div class="metric-card-title">Errors & Critical</div>
+                                <i class="fas fa-exclamation-triangle" style="color: #F56C6C; font-size: 18px;"></i>
+                            </div>
+                            <div class="metric-card-value" style="color: #F56C6C;">{{ formatNumber(stats.byLevel.error + stats.byLevel.critical) }}</div>
+                            <div class="metric-card-status error" v-if="stats.byLevel.error > 0">
+                                <i class="fas fa-alert"></i>
+                                {{ calculatePercentage(stats.byLevel.error + stats.byLevel.critical, stats.total) }}%
+                            </div>
+                            <div class="metric-card-status good" v-else>
+                                <i class="fas fa-check-circle"></i>
+                                No errors
+                            </div>
+                        </div>
+                    </el-col>
+                </el-row>
+            </div>
+
+            <!-- Infrastructure Overview Section -->
+            <div class="metrics-section">
+                <div class="section-title">
+                    <i class="fas fa-cube"></i> Infrastructure Overview
+                </div>
+                <div class="infrastructure-cards">
+                    <!-- Log Storage Card -->
+                    <div class="infra-card">
+                        <div class="infra-card-icon">
+                            <i class="fas fa-database"></i>
+                        </div>
+                        <div class="infra-card-title">Log Storage</div>
+                        <div class="infra-card-stat">
+                            <span class="infra-card-stat-label">Total Size</span>
+                            <span class="infra-card-stat-value">{{ storageInfo.totalSizeMB }}</span>
+                        </div>
+                        <div class="infra-card-stat">
+                            <span class="infra-card-stat-label">Files</span>
+                            <span class="infra-card-stat-value">{{ storageInfo.totalFiles }}</span>
+                        </div>
+                        <div class="infra-card-stat">
+                            <span class="infra-card-stat-label">Capacity Used</span>
+                            <span class="infra-card-stat-value">{{ storageInfo.usagePercent }}%</span>
+                        </div>
+                        <div class="infra-card-action">
+                            <a href="/analysis">View Storage →</a>
+                        </div>
+                    </div>
+
+                    <!-- Top Categories Card -->
+                    <div class="infra-card">
+                        <div class="infra-card-icon">
+                            <i class="fas fa-tags"></i>
+                        </div>
+                        <div class="infra-card-title">Log Categories</div>
+                        <div class="infra-card-stat">
+                            <span class="infra-card-stat-label">Total Categories</span>
+                            <span class="infra-card-stat-value">{{ (stats.topCategories || []).length }}</span>
+                        </div>
+                        <div class="infra-card-stat">
+                            <span class="infra-card-stat-label">Most Active</span>
+                            <span class="infra-card-stat-value">{{ topCategory }}</span>
+                        </div>
+                        <div class="infra-card-stat">
+                            <span class="infra-card-stat-label">Last Updated</span>
+                            <span class="infra-card-stat-value">{{ lastUpdate }}</span>
+                        </div>
+                        <div class="infra-card-action">
+                            <a @click="goToCategories">View All →</a>
+                        </div>
+                    </div>
+
+                    <!-- Syslog Status Card -->
+                    <div class="infra-card">
+                        <div class="infra-card-icon">
+                            <i class="fas fa-network-wired"></i>
+                        </div>
+                        <div class="infra-card-title">Syslog Server</div>
+                        <div class="infra-card-stat">
+                            <span class="infra-card-stat-label">Status</span>
+                            <span class="infra-card-stat-value" style="color: #22c55e;">Active</span>
+                        </div>
+                        <div class="infra-card-stat">
+                            <span class="infra-card-stat-label">Port</span>
+                            <span class="infra-card-stat-value">1514 (UDP)</span>
+                        </div>
+                        <div class="infra-card-stat">
+                            <span class="infra-card-stat-label">Logs Received</span>
+                            <span class="infra-card-stat-value">{{ formatNumber(stats.total) }}</span>
+                        </div>
+                        <div class="infra-card-action">
+                            <a href="/config">Setup Guide →</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="metrics-section">
+                <div class="section-title">
+                    <i class="fas fa-chart-bar"></i> Activity Timeline & Distribution
+                </div>
+                <el-row :gutter="20">
+                    <el-col :xs="24" :md="14">
+                        <div class="metric-card" style="padding: 0; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden;">
+                            <div style="padding: 20px; border-bottom: 1px solid #e0e0e0;">
+                                <h3 style="margin: 0; font-size: 14px; font-weight: 600; color: #333;">
+                                    <i class="fas fa-line-chart"></i> Log Timeline (Last 24 Hours)
+                                </h3>
+                            </div>
+                            <div style="height: 300px; padding: 20px;">
+                                <canvas id="timelineChart"></canvas>
+                            </div>
+                        </div>
+                    </el-col>
+                    <el-col :xs="24" :md="10">
+                        <div class="metric-card" style="padding: 0; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; height: 100%;">
+                            <div style="padding: 20px; border-bottom: 1px solid #e0e0e0;">
+                                <h3 style="margin: 0; font-size: 14px; font-weight: 600; color: #333;">
+                                    <i class="fas fa-pie-chart"></i> Top Categories
+                                </h3>
+                            </div>
+                            <div style="height: 300px; padding: 20px;">
+                                <canvas id="categoryChart"></canvas>
+                            </div>
+                        </div>
+                    </el-col>
+                </el-row>
+            </div>
+
+            <!-- Recent Activities Section -->
+            <div class="metrics-section">
+                <div class="section-title">
+                    <i class="fas fa-history"></i> Recent Activities & Errors
+                </div>
+                <div class="recent-activities">
+                    <div v-if="stats.recentErrors && stats.recentErrors.length > 0">
+                        <div v-for="(log, index) in stats.recentErrors.slice(0, 8)" :key="index" class="activity-item">
+                            <div class="activity-icon">
+                                <i :class="getActivityIcon(log.level)"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">
+                                    <el-tag :type="getLevelType(log.level)" size="small" style="margin-right: 8px;">{{ log.level }}</el-tag>
+                                    <span>[{{ log.category }}]</span>
+                                </div>
+                                <div style="font-size: 12px; color: #666; margin-top: 4px; line-height: 1.5;">{{ log.message.substring(0, 100) }}</div>
+                                <div class="activity-time">{{ formatTime(log.timestamp) }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div v-else style="text-align: center; padding: 30px; color: #999;">
+                        <i class="fas fa-check-circle" style="font-size: 32px; margin-bottom: 10px;"></i>
+                        <p>No recent errors or critical logs</p>
+                    </div>
+                    <div style="margin-top: 15px; text-align: center; padding-top: 15px; border-top: 1px solid #e0e0e0;">
+                        <a href="/analysis" style="color: #667eea; text-decoration: none; font-weight: 600;">View All Activities →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    </div><!-- Close app-wrapper -->
+
+    <footer class="app-footer">
+        <p>&copy; 2025 LogScope - Real-time Mikrotik Syslog Analyzer</p>
+    </footer>
+</div><!-- Close app -->
+
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+
+<script>
+const socket = io();
+
+new Vue({
+    el: '#app',
+    data() {
+        return {
+            stats: { 
+                total: 0, 
+                byLevel: { info: 0, warning: 0, error: 0, critical: 0 }, 
+                byCategory: {}, 
+                topCategories: [], 
+                recentErrors: [] 
+            },
+            storageInfo: {
+                totalFiles: 0,
+                totalSizeMB: '0.00',
+                usagePercent: 0
+            },
+            timelineChart: null,
+            categoryChart: null,
+            lastUpdate: 'Now',
+            sidebarOpen: true,
+            currentPage: 'dashboard'
+        };
+    },
+    computed: {
+        topCategory() {
+            if (!this.stats.topCategories || this.stats.topCategories.length === 0) return 'N/A';
+            return this.stats.topCategories[0]?.name || 'N/A';
+        }
+    },
+    mounted() {
+        this.loadStats();
+        this.loadTimeline();
+        this.loadStorageInfo();
+        this.setupWebSocket();
+        this.updateTime();
+        setInterval(() => this.updateTime(), 1000);
+    },
+    methods: {
+        toggleSidebar() {
+            this.sidebarOpen = !this.sidebarOpen;
+        },
+        goToPage(page) {
+            this.currentPage = page;
+        },
+        setupWebSocket() {
+            socket.on('newLog', (log) => {
+                console.log('New log received:', log.message.substring(0, 50));
+                this.loadStats();
+                this.loadTimeline();
+                this.lastUpdate = 'Just now';
+            });
+        },
+        async loadStats() {
+            try {
+                const response = await axios.get('/api/stats');
+                if (response.data.success) {
+                    this.stats = response.data.data;
+                    this.updateCategoryChart();
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+                this.$message.error('Failed to load statistics');
+            }
+        },
+        async loadTimeline() {
+            try {
+                const response = await axios.get('/api/timeline');
+                if (response.data.success) {
+                    this.updateTimelineChart(response.data.data);
+                }
+            } catch (error) {
+                console.error('Error loading timeline:', error);
+            }
+        },
+        async loadStorageInfo() {
+            try {
+                const response = await axios.get('/api/syslog/status');
+                if (response.data.success && response.data.data.storage) {
+                    const storage = response.data.data.storage;
+                    this.storageInfo = {
+                        totalFiles: storage.totalFiles,
+                        totalSizeMB: storage.totalSizeMB,
+                        usagePercent: Math.round((storage.totalLines / (storage.maxLogsPerFile * storage.maxFiles)) * 100)
+                    };
+                }
+            } catch (error) {
+                console.error('Error loading storage info:', error);
+            }
+        },
+        updateTimelineChart(data) {
+            const ctx = document.getElementById('timelineChart');
+            if (!ctx) return;
+            if (this.timelineChart) this.timelineChart.destroy();
+            
+            this.timelineChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.map(d => d.timestamp),
+                    datasets: [
+                        { 
+                            label: 'Info', 
+                            data: data.map(d => d.info || 0), 
+                            borderColor: '#409EFF', 
+                            backgroundColor: 'rgba(64, 158, 255, 0.1)', 
+                            tension: 0.4, 
+                            fill: true,
+                            pointRadius: 3,
+                            pointBackgroundColor: '#409EFF',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointHoverRadius: 5
+                        },
+                        { 
+                            label: 'Warning', 
+                            data: data.map(d => d.warning || 0), 
+                            borderColor: '#E6A23C', 
+                            backgroundColor: 'rgba(230, 162, 60, 0.1)', 
+                            tension: 0.4, 
+                            fill: true,
+                            pointRadius: 3,
+                            pointBackgroundColor: '#E6A23C',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointHoverRadius: 5
+                        },
+                        { 
+                            label: 'Error', 
+                            data: data.map(d => d.error || 0), 
+                            borderColor: '#F56C6C', 
+                            backgroundColor: 'rgba(245, 108, 108, 0.1)', 
+                            tension: 0.4, 
+                            fill: true,
+                            pointRadius: 3,
+                            pointBackgroundColor: '#F56C6C',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointHoverRadius: 5
+                        }
+                    ]
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { 
+                        legend: { 
+                            position: 'top',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 15,
+                                font: { size: 12, weight: 600 }
+                            }
+                        } 
+                    }, 
+                    scales: { 
+                        y: { 
+                            beginAtZero: true,
+                            ticks: { font: { size: 11 } },
+                            grid: { color: 'rgba(0,0,0,0.05)' }
+                        },
+                        x: {
+                            ticks: { font: { size: 11 } },
+                            grid: { color: 'rgba(0,0,0,0.05)' }
+                        }
+                    }
+                }
+            });
+        },
+        updateCategoryChart() {
+            const ctx = document.getElementById('categoryChart');
+            if (!ctx) return;
+            if (this.categoryChart) this.categoryChart.destroy();
+            
+            const categories = this.stats.topCategories || [];
+            const colors = ['#667eea', '#764ba2', '#f093fb', '#4facfe', '#43e97b', '#fa709a', '#fee140', '#30b0fe'];
+            
+            this.categoryChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: categories.map(c => c.name),
+                    datasets: [{
+                        data: categories.map(c => c.count), 
+                        backgroundColor: colors.slice(0, categories.length),
+                        borderColor: '#fff',
+                        borderWidth: 2
+                    }]
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { 
+                        legend: { 
+                            position: 'bottom',
+                            labels: {
+                                padding: 15,
+                                font: { size: 11, weight: 500 }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                    return `${context.label}: ${context.parsed} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        },
+        formatNumber(num) {
+            if (!num) return '0';
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+            return num.toString();
+        },
+        calculatePercentage(part, total) {
+            if (!total || total === 0) return '0';
+            return Math.round((part / total) * 100);
+        },
+        formatTime(timestamp) {
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diff = (now - date) / 1000; // difference in seconds
+            
+            if (diff < 60) return 'just now';
+            if (diff < 3600) return Math.floor(diff / 60) + ' minutes ago';
+            if (diff < 86400) return Math.floor(diff / 3600) + ' hours ago';
+            return date.toLocaleDateString('id-ID') + ' ' + date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+        },
+        formatDate(date) { 
+            return new Date(date).toLocaleString('id-ID'); 
+        },
+        getLevelType(level) {
+            const types = { info: 'info', warning: 'warning', error: 'danger', critical: 'danger' };
+            return types[level] || 'info';
+        },
+        getActivityIcon(level) {
+            const icons = {
+                'info': 'fas fa-circle-info',
+                'warning': 'fas fa-triangle-exclamation',
+                'error': 'fas fa-circle-xmark',
+                'critical': 'fas fa-triangle-exclamation'
+            };
+            return icons[level] || 'fas fa-circle-info';
+        },
+        refreshData() {
+            this.loadStats();
+            this.loadTimeline();
+            this.loadStorageInfo();
+            this.$message.success('Data refreshed successfully');
+        },
+        exportLogs() {
+            window.location.href = '/analysis?export=true';
+        },
+        clearLogs() {
+            this.$confirm('This will clear all logs. Continue?', 'Warning', {
+                confirmButtonText: 'OK',
+                cancelButtonText: 'Cancel',
+                type: 'warning'
+            }).then(() => {
+                axios.delete('/api/logs')
+                    .then(() => {
+                        this.$message.success('All logs cleared');
+                        this.loadStats();
+                        this.loadTimeline();
+                        this.loadStorageInfo();
+                    })
+                    .catch(() => this.$message.error('Failed to clear logs'));
+            }).catch(() => {});
+        },
+        goToCategories() {
+            window.location.href = '/analysis';
+        },
+        updateTime() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            const timeStr = `${hours}:${minutes}:${seconds}`;
+            
+            const headerTimeEl = document.getElementById('headerTime');
+            if (headerTimeEl) {
+                headerTimeEl.textContent = timeStr;
+            }
+            
+            const currentTimeEl = document.getElementById('currentTime');
+            if (currentTimeEl) {
+                currentTimeEl.textContent = timeStr;
+            }
+        }
+    }
+});
+</script>
+</body>
+</html>

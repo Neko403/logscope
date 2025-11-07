@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Sidebar Styles */
+        .app-wrapper {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #2c2c4c 0%, #1a1a2e 100%);
+            color: white;
+            padding: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+            box-shadow: 4px 0 12px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar.collapsed {
+            transform: translateX(-100%);
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            flex-shrink: 0;
+        }
+
+        .sidebar-header h2 {
+            margin: 0 0 5px 0;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .sidebar-header p {
+            margin: 0;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 0;
+            margin: 0;
+            list-style: none;
+        }
+
+        .sidebar-section {
+            margin-bottom: 8px;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar-section-title {
+            padding: 12px 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.4);
+            letter-spacing: 1px;
+            margin-top: 8px;
+        }
+
+        .sidebar-item {
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            font-weight: 500;
+            border-left: 3px solid transparent;
+            cursor: pointer;
+            background: none;
+            border: none;
+            width: 100%;
+            text-align: left;
+        }
+
+        .sidebar-link:hover {
+            background: rgba(102, 126, 234, 0.2);
+            color: white;
+            border-left-color: #667eea;
+            padding-left: 18px;
+        }
+
+        .sidebar-link.active {
+            background: rgba(102, 126, 234, 0.3);
+            color: #667eea;
+            border-left-color: #667eea;
+            font-weight: 600;
+        }
+
+        .sidebar-link i {
+            width: 20px;
+            text-align: center;
+            font-size: 16px;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-link:hover i {
+            transform: translateX(3px);
+        }
+
+        .sidebar-footer {
+            padding: 16px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+            flex-shrink: 0;
+        }
+
+        .sidebar-footer p {
+            margin: 0;
+            text-align: center;
+        }
+
+        .sidebar-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 8px;
+            transition: transform 0.3s ease;
+            margin-left: auto;
+        }
+
+        .app-content {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: 0;
+                top: 60px;
+                height: calc(100vh - 60px);
+                z-index: 999;
+            }
+
+            .sidebar.collapsed {
+                transform: translateX(-100%);
+            }
+
+            .sidebar-toggle {
+                display: block;
+            }
+
+            .app-wrapper.sidebar-open .sidebar-toggle i {
+                transform: rotate(180deg);
+            }
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <header class="app-header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-chart-line"></i>
+                <h1>LogScope</h1>
+            </div>
+
+            <div class="header-center">
+                <div class="header-clock">
+                    <i class="fas fa-clock"></i>
+                    <span id="headerTime">--:--:--</span>
+                </div>
+                <div class="header-status">
+                    <i></i>
+                    <span>Monitoring Active</span>
+                </div>
+            </div>
+
+            <div class="header-right">
+                <button class="sidebar-toggle" @click="toggleSidebar" title="Toggle sidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="app-wrapper" :class="{ 'sidebar-open': sidebarOpen }">
+        <!-- Sidebar -->
+        <aside class="sidebar" :class="{ collapsed: !sidebarOpen }">
+            <div class="sidebar-header">
+                <h2>LogScope</h2>
+                <p>Syslog Monitor</p>
+            </div>
+
+            <nav class="sidebar-nav">
+                <!-- Dashboard Section -->
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">
+                        <i class="fas fa-home"></i> Main
+                    </div>
+                    <div class="sidebar-item">
+                        <a href="/" class="sidebar-link" :class="{ active: currentPageName === 'dashboard' }" @click="currentPageName = 'dashboard'">
+                            <i class="fas fa-chart-pie"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Log Management Section -->
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">
+                        <i class="fas fa-layer-group"></i> Log Management
+                    </div>
+                    <div class="sidebar-item">
+                        <a href="/analysis" class="sidebar-link" :class="{ active: currentPageName === 'analysis' }" @click="currentPageName = 'analysis'">
+                            <i class="fas fa-filter"></i>
+                            <span>Analysis & Filter</span>
+                        </a>
+                    </div>
+                    <div class="sidebar-item">
+                        <button class="sidebar-link" @click="exportLogs" style="width: 100%; text-align: left; background: none;">
+                            <i class="fas fa-download"></i>
+                            <span>Export Logs</span>
+                        </button>
+                    </div>
+                    <div class="sidebar-item">
+                        <button class="sidebar-link" @click="refreshData" style="width: 100%; text-align: left; background: none;">
+                            <i class="fas fa-arrows-rotate"></i>
+                            <span>Refresh Data</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- System Section -->
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">
+                        <i class="fas fa-sliders"></i> System
+                    </div>
+                    <div class="sidebar-item">
+                        <a href="/config" class="sidebar-link" :class="{ active: currentPageName === 'config' }" @click="currentPageName = 'config'">
+                            <i class="fas fa-gears"></i>
+                            <span>Configuration</span>
+                        </a>
+                    </div>
+                    <div class="sidebar-item">
+                        <button class="sidebar-link" @click="clearLogs" style="width: 100%; text-align: left; background: none; color: rgba(255, 255, 255, 0.7);">
+                            <i class="fas fa-trash" style="color: #ef4444;"></i>
+                            <span>Clear Logs</span>
+                        </button>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <p>v1.0 • File-Based Storage</p>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="app-main app-content">
+        <div class="config-page" id="configApp">
+            <el-row :gutter="20">
+                <el-col :span="24">
+                    <el-card shadow="hover">
+                        <template #header>
+                            <div class="config-header">
+                                <span><i class="fas fa-cog"></i> Syslog Server Configuration</span>
+                                <el-tag type="success">Active & Listening</el-tag>
+                            </div>
+                        </template>
+
+                        <el-alert
+                            title="Syslog Server Status"
+                            type="success"
+                            description="UDP syslog server is listening for incoming log messages from Mikrotik"
+                            show-icon
+                            :closable="false"
+                            style="margin-bottom: 20px;">
+                        </el-alert>
+
+                        <el-descriptions :column="2" border style="margin-bottom: 20px;">
+                            <el-descriptions-item label="Server IP(s)">
+                                <% if (serverIPs && serverIPs.length > 0) { %>
+                                    <% serverIPs.forEach(function(ip) { %>
+                                        <el-tag type="info" style="margin-right: 5px;"><%= ip %></el-tag>
+                                    <% }); %>
+                                <% } else { %>
+                                    <span>No IP detected</span>
+                                <% } %>
+                            </el-descriptions-item>
+                            <el-descriptions-item label="Syslog Port">
+                                <el-tag type="warning"><%= syslogPort %></el-tag>
+                            </el-descriptions-item>
+                            <el-descriptions-item label="Protocol">
+                                <el-tag>UDP (RFC 3164)</el-tag>
+                            </el-descriptions-item>
+                            <el-descriptions-item label="Status">
+                                <el-tag type="success"><i class="fas fa-check-circle"></i> Running</el-tag>
+                            </el-descriptions-item>
+                        </el-descriptions>
+                    </el-card>
+                </el-col>
+            </el-row>
+
+            <el-row :gutter="20" style="margin-top: 20px;">
+                <el-col :span="24">
+                    <el-card shadow="hover">
+                        <template #header>
+                            <span><i class="fas fa-list-check"></i> Step-by-Step Setup Guide</span>
+                        </template>
+
+                        <el-steps :active="0" finish-status="success" direction="vertical" align-center>
+                            <el-step title="Create Syslog Action" description="Configure Mikrotik to send logs to this server">
+                                <template #description>
+                                    <p>Open Winbox or SSH terminal and run:</p>
+                                    <el-input
+                                        type="textarea"
+                                        :rows="3"
+                                        :value="'/system logging action\nadd name=logscope target=remote remote=' + serverIP + ' remote-port=<%= syslogPort %>'"
+                                        readonly
+                                        style="margin: 10px 0;">
+                                    </el-input>
+                                    <el-button type="primary" size="small" @click="copyStep1">
+                                        <i class="fas fa-copy"></i> Copy
+                                    </el-button>
+                                </template>
+                            </el-step>
+
+                            <el-step title="Enable Logging Topics" description="Activate logging for different severity levels">
+                                <template #description>
+                                    <p>Add logging rules for each topic:</p>
+                                    <el-input
+                                        type="textarea"
+                                        :rows="5"
+                                        :value="'/system logging\nadd action=logscope topics=info\nadd action=logscope topics=warning\nadd action=logscope topics=error\nadd action=logscope topics=critical'"
+                                        readonly
+                                        style="margin: 10px 0;">
+                                    </el-input>
+                                    <el-button type="primary" size="small" @click="copyStep2">
+                                        <i class="fas fa-copy"></i> Copy
+                                    </el-button>
+                                </template>
+                            </el-step>
+
+                            <el-step title="Verify Configuration" description="Check that everything is set up correctly">
+                                <template #description>
+                                    <p>Verify your configuration with these commands:</p>
+                                    <el-input
+                                        type="textarea"
+                                        :rows="2"
+                                        value="/system logging print
+/system logging action print"
+                                        readonly
+                                        style="margin: 10px 0;">
+                                    </el-input>
+                                    <p style="color: #67C23A; margin-top: 10px;">
+                                        <i class="fas fa-check-circle"></i> Logs should appear in Dashboard after a few seconds
+                                    </p>
+                                </template>
+                            </el-step>
+                        </el-steps>
+                    </el-card>
+                </el-col>
+            </el-row>
+
+            <el-row :gutter="20" style="margin-top: 20px;">
+                <el-col :xs="24" :md="12">
+                    <el-card shadow="hover">
+                        <template #header>
+                            <span><i class="fas fa-lightbulb"></i> Tips & Tricks</span>
+                        </template>
+                        <ul style="line-height: 2;">
+                            <li><strong>All Topics:</strong> <code>/system logging add action=logscope topics=!debug</code></li>
+                            <li><strong>Multiple Mikrotiks:</strong> All can send to same server</li>
+                            <li><strong>Filter by Source:</strong> Use search in Analysis page</li>
+                            <li><strong>Export Data:</strong> Download filtered logs as CSV</li>
+                        </ul>
+                    </el-card>
+                </el-col>
+
+                <el-col :xs="24" :md="12">
+                    <el-card shadow="hover">
+                        <template #header>
+                            <span><i class="fas fa-link"></i> Network Requirements</span>
+                        </template>
+                        <ul style="line-height: 2;">
+                            <li><i class="fas fa-check" style="color: #67C23A;"></i> Mikrotik must reach server IP</li>
+                            <li><i class="fas fa-check" style="color: #67C23A;"></i> UDP port <%= syslogPort %> open</li>
+                            <li><i class="fas fa-check" style="color: #67C23A;"></i> No firewall blocking</li>
+                            <li><i class="fas fa-check" style="color: #67C23A;"></i> Proper routing to server</li>
+                        </ul>
+                    </el-card>
+                </el-col>
+            </el-row>
+
+            <el-row :gutter="20" style="margin-top: 20px;">
+                <el-col :span="24">
+                    <el-card shadow="hover">
+                        <template #header>
+                            <span><i class="fas fa-book"></i> Common Topics to Monitor</span>
+                        </template>
+                        <el-table :data="topics" stripe>
+                            <el-table-column prop="name" label="Topic" width="150"></el-table-column>
+                            <el-table-column prop="description" label="Description"></el-table-column>
+                            <el-table-column label="Command" width="250">
+                                <template slot-scope="scope">
+                                    <el-button type="text" size="small" @click="copyTopic(scope.row)">
+                                        <i class="fas fa-copy"></i> Copy
+                                    </el-button>
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                    </el-card>
+                </el-col>
+            </el-row>
+        </div>
+        </main>
+    </div><!-- Close app-wrapper -->
+
+    <footer class="app-footer">
+        <p>&copy; 2025 LogScope - Real-time Mikrotik Syslog Analyzer</p>
+    </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+<script>
+new Vue({
+    el: '#app',
+    data() {
+        return {
+            serverIP: '<% if (serverIPs && serverIPs[0]) { %><%= serverIPs[0] %><% } else { %>192.168.1.100<% } %>',
+            topics: [
+                { name: 'firewall', description: 'Firewall rules and packet filtering', command: 'topics=firewall' },
+                { name: 'system', description: 'System events and status changes', command: 'topics=system' },
+                { name: 'dhcp', description: 'DHCP server and client events', command: 'topics=dhcp' },
+                { name: 'wireless', description: 'Wireless/WiFi client events', command: 'topics=wireless' },
+                { name: 'hotspot', description: 'Hotspot user authentication', command: 'topics=hotspot' },
+                { name: 'ppp', description: 'PPP/PPPoE connections', command: 'topics=ppp' },
+                { name: 'vpn', description: 'VPN tunnel events', command: 'topics=vpn' }
+            ],
+            sidebarOpen: true,
+            currentPageName: 'config'
+        };
+    },
+    mounted() {
+        this.updateTime();
+        setInterval(() => this.updateTime(), 1000);
+    },
+    methods: {
+        toggleSidebar() {
+            this.sidebarOpen = !this.sidebarOpen;
+        },
+        exportLogs() {
+            this.$message.info('Redirecting to Analysis page for export');
+            window.location.href = '/analysis';
+        },
+        refreshData() {
+            this.$message.success('Configuration refreshed');
+        },
+        clearLogs() {
+            this.$confirm('This will clear all logs. Continue?', 'Warning', {
+                confirmButtonText: 'OK',
+                cancelButtonText: 'Cancel',
+                type: 'warning'
+            }).then(() => {
+                axios.delete('/api/logs')
+                    .then(() => {
+                        this.$message.success('All logs cleared');
+                    })
+                    .catch(() => this.$message.error('Failed to clear logs'));
+            }).catch(() => {});
+        },
+        copyStep1() {
+            const text = '/system logging action\nadd name=logscope target=remote remote=' + this.serverIP + ' remote-port=<%= syslogPort %>';
+            this.copyToClipboard(text);
+        },
+        copyStep2() {
+            const text = '/system logging\nadd action=logscope topics=info\nadd action=logscope topics=warning\nadd action=logscope topics=error\nadd action=logscope topics=critical';
+            this.copyToClipboard(text);
+        },
+        copyTopic(row) {
+            const text = '/system logging\nadd action=logscope ' + row.command;
+            this.copyToClipboard(text);
+        },
+        copyToClipboard(text) {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text)
+                    .then(() => {
+                        this.$message.success('Command copied!');
+                    })
+                    .catch(err => {
+                        console.error('Clipboard API failed:', err);
+                        this.fallbackCopyTextToClipboard(text);
+                    });
+            } else {
+                this.fallbackCopyTextToClipboard(text);
+            }
+        },
+        fallbackCopyTextToClipboard(text) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.top = '-9999px';
+            textArea.style.left = '-9999px';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    this.$message.success('Command copied!');
+                } else {
+                    this.$message.warning('Copy failed. Please copy manually.');
+                }
+            } catch (err) {
+                console.error('Fallback copy failed:', err);
+                this.$message.error('Copy failed. Please copy manually.');
+            }
+            document.body.removeChild(textArea);
+        },
+        updateTime() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            const timeStr = `${hours}:${minutes}:${seconds}`;
+            
+            const headerTimeEl = document.getElementById('headerTime');
+            if (headerTimeEl) {
+                headerTimeEl.textContent = timeStr;
+            }
+        }
+    }
+});
+</script>
+</body>
+</html>
